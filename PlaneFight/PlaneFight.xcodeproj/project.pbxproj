@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0253272A180D555900CA31DD /* trail.sks in Resources */ = {isa = PBXBuildFile; fileRef = 02532728180D555900CA31DD /* trail.sks */; };
+		0253272D180D55C300CA31DD /* SMOKE TRAIL.png in Resources */ = {isa = PBXBuildFile; fileRef = 0253272C180D55C300CA31DD /* SMOKE TRAIL.png */; };
+		02532730180D63DD00CA31DD /* enemyTrail.sks in Resources */ = {isa = PBXBuildFile; fileRef = 0253272E180D63DD00CA31DD /* enemyTrail.sks */; };
 		02838F06180D432900792D76 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02838F05180D432900792D76 /* Foundation.framework */; };
 		02838F08180D432900792D76 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02838F07180D432900792D76 /* CoreGraphics.framework */; };
 		02838F0A180D432900792D76 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02838F09180D432900792D76 /* UIKit.framework */; };
@@ -36,6 +39,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		02532728180D555900CA31DD /* trail.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = trail.sks; sourceTree = "<group>"; };
+		0253272C180D55C300CA31DD /* SMOKE TRAIL.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "SMOKE TRAIL.png"; sourceTree = "<group>"; };
+		0253272E180D63DD00CA31DD /* enemyTrail.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = enemyTrail.sks; sourceTree = "<group>"; };
 		02838F02180D432900792D76 /* PlaneFight.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PlaneFight.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		02838F05180D432900792D76 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		02838F07180D432900792D76 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -126,6 +132,9 @@
 				02838F1D180D432900792D76 /* ViewController.m */,
 				02838F1F180D432900792D76 /* MyScene.h */,
 				02838F20180D432900792D76 /* MyScene.m */,
+				0253272E180D63DD00CA31DD /* enemyTrail.sks */,
+				02532728180D555900CA31DD /* trail.sks */,
+				0253272C180D55C300CA31DD /* SMOKE TRAIL.png */,
 				02838F24180D432900792D76 /* Images.xcassets */,
 				02838F0E180D432900792D76 /* Supporting Files */,
 			);
@@ -239,7 +248,10 @@
 			files = (
 				02838F12180D432900792D76 /* InfoPlist.strings in Resources */,
 				02838F25180D432900792D76 /* Images.xcassets in Resources */,
+				0253272D180D55C300CA31DD /* SMOKE TRAIL.png in Resources */,
+				02532730180D63DD00CA31DD /* enemyTrail.sks in Resources */,
 				02838F1B180D432900792D76 /* Main.storyboard in Resources */,
+				0253272A180D555900CA31DD /* trail.sks in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -472,6 +484,7 @@
 				02838F3D180D432A00792D76 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		02838F3E180D432A00792D76 /* Build configuration list for PBXNativeTarget "PlaneFightTests" */ = {
 			isa = XCConfigurationList;
@@ -480,6 +493,7 @@
 				02838F40180D432A00792D76 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
