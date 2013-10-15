@@ -82,6 +82,28 @@
                                                         callEnemies]];
         [self runAction:[SKAction repeatActionForever:updateEnimies]];
         
+        //physics
+        self.physicsWorld.gravity = CGVectorMake(0, 0);
+        self.physicsWorld.contactDelegate = self;
+        
+        //load explosions
+        SKTextureAtlas * explosionAtlas = [SKTextureAtlas atlasNamed:@"Explosion"];
+        NSArray * textureNamesExplosion = [explosionAtlas textureNames];
+        _explosionTextures = [NSMutableArray new];
+        for (NSString * name in textureNamesExplosion) {
+            SKTexture * texture = [explosionAtlas textureNamed:name];
+            [_explosionTextures addObject:texture];
+        }
+        
+        //load clouds
+        SKTextureAtlas * cloudsAtlas = [SKTextureAtlas atlasNamed:@"Clouds"];
+        NSArray * textureNamesClouds = [cloudsAtlas textureNames];
+        _cloudsTextures = [NSMutableArray new];
+        for (NSString * name in textureNamesClouds) {
+            SKTexture * texture = [cloudsAtlas textureNamed:name];
+            [_cloudsTextures addObject:texture];
+        }
+        
     }
     return self;
 }
@@ -100,8 +122,8 @@
 -(void)enemiesAndClouds {
     //not always come
     int goOrNot = [self getRandomNumberBetween:0
-                                            to:1];
-    if (goOrNot == 1) {
+                                            to:10];
+    if (goOrNot > 0) {
         int randomEnemy = [self getRandomNumberBetween:0
                                                     to:1];
         if (randomEnemy == 0) {
@@ -161,6 +183,7 @@
                                                planeDestroy,
                                                remove]]];
         
+        /*
         //adding the enemySmokeTrail
         NSString * smokePath = [[NSBundle mainBundle] pathForResource:@"enemyTrail"
                                                                ofType:@"sks"];
@@ -183,9 +206,40 @@
         [_enemyPropeller runAction:spinForever];
         [self addChild:_enemyPropeller];
         [_enemyPropeller runAction:[SKAction sequence:@[planeDestroy,remove]]];
-        
+        */
+         
         CGPathRelease(cgPath);
         
+        //enemyPhysicsBody
+        _enemy.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:_enemy.size];
+        _enemy.physicsBody.dynamic = YES;
+        _enemy.physicsBody.categoryBitMask = enemyCategory;
+        _enemy.physicsBody.contactTestBitMask = bulletCategory;
+        _enemy.physicsBody.collisionBitMask = 0;
+        
+        //random Clouds
+        int randomClouds = [self getRandomNumberBetween:0
+                                                     to:1];
+        if (randomClouds == 1) {
+            int whichCloud = [self getRandomNumberBetween:0
+                                                       to:3];
+            _cloud = [SKSpriteNode spriteNodeWithTexture:[_cloudsTextures objectAtIndex:whichCloud]];
+            int randomY = [self getRandomNumberBetween:0
+                                                    to:self.frame.size.height];
+            _cloud.zPosition = 1;
+            _cloud.position = CGPointMake(self.frame.size.height + _cloud.size.height / 2,
+                                          randomY);
+            int randomTimeCloud = [self getRandomNumberBetween:9
+                                                            to:19];
+            SKAction * move = [SKAction moveTo:CGPointMake(0 - _cloud.size.height,
+                                                           randomY)
+                                      duration:randomTimeCloud];
+            SKAction * remove = [SKAction removeFromParent];
+            [_cloud runAction:[SKAction sequence:@[move,
+                                                   remove]]];
+            [self addChild:_cloud];
+        
+        }
     }
 }
 
@@ -206,12 +260,47 @@
     _bullet.zPosition = 1;
     _bullet.scale = 0.8;
     SKAction * action = [SKAction moveToY:self.frame.size.height + _bullet.size.height
-                                duration:1.5];
+                                duration:2];
     SKAction * remove = [SKAction removeFromParent];
     [_bullet runAction:[SKAction sequence:@[action,
                                             remove]]];
     [self addChild:_bullet];
     
+    //bulletPhysicsBody
+    _bullet.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:_bullet.size];
+    _bullet.physicsBody.dynamic = NO;
+    _bullet.physicsBody.categoryBitMask = bulletCategory;
+    _bullet.physicsBody.contactTestBitMask = enemyCategory;
+    _bullet.physicsBody.collisionBitMask = 0;
+}
+
+-(void)didBeginContact:(SKPhysicsContact *)contact {
+    SKPhysicsBody * firstBody;
+    SKPhysicsBody * secondBody;
+    if (contact.bodyA.categoryBitMask < contact.bodyB.categoryBitMask) {
+        firstBody = contact.bodyA;
+        secondBody = contact.bodyB;
+    } else {
+        firstBody = contact.bodyB;
+        secondBody = contact.bodyA;
+    }
+    if ((firstBody.categoryBitMask & bulletCategory) != 0) {
+        SKNode * projectile = (contact.bodyA.categoryBitMask & bulletCategory) ? contact.bodyA.node : contact.bodyB.node;
+        SKNode * enemy = (contact.bodyA.categoryBitMask & bulletCategory) ? contact.bodyB.node : contact.bodyA.node;
+        [projectile runAction:[SKAction removeFromParent]];
+        [enemy runAction:[SKAction removeFromParent]];
+        
+        //add explosion
+        SKSpriteNode *explosion = [SKSpriteNode spriteNodeWithTexture:[_explosionTextures objectAtIndex:0]];
+        explosion.zPosition = 1;
+        explosion.scale = 0.6;
+        explosion.position = contact.bodyA.node.position;
+        [self addChild:explosion];
+        SKAction * explosionAction = [SKAction animateWithTextures:_explosionTextures
+                                                      timePerFrame:0.07];
+        SKAction * remove = [SKAction removeFromParent];
+        [explosion runAction:[SKAction sequence:@[explosionAction,remove]]];
+    }
 }
 
 -(void)update:(CFTimeInterval)currentTime {
@@ -262,7 +351,6 @@
                                       newYpropeller);
     _smokeTrail.position = CGPointMake(newX,
                                        newY - (_plane.size.height / 2));
-    _enemySmokeTrail.position = CGPointMake(_enemy.position.x,_enemy.position.y);
 }
 
 @end
