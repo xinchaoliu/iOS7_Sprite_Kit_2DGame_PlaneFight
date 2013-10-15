@@ -180,7 +180,22 @@
 }
 
 
--(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+-(void)touchesBegan:(NSSet *)touches
+          withEvent:(UIEvent *)event {
+    
+    /* Called when a touch begins */
+    CGPoint location = [_plane position];
+    _bullet = [SKSpriteNode spriteNodeWithImageNamed:@"B 2"];
+    _bullet.position = CGPointMake(location.x,
+                                  location.y + _plane.size.height / 2);
+    _bullet.zPosition = 1;
+    _bullet.scale = 0.8;
+    SKAction * action = [SKAction moveToY:self.frame.size.height + _bullet.size.height
+                                duration:1];
+    SKAction * remove = [SKAction removeFromParent];
+    [_bullet runAction:[SKAction sequence:@[action,
+                                            remove]]];
+    [self addChild:_bullet];
     
 }
 
