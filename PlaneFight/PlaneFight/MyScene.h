@@ -9,22 +9,23 @@
 #import <SpriteKit/SpriteKit.h>
 #import <CoreMotion/CoreMotion.h>
 
-@interface MyScene : SKScene <UIAccelerometerDelegate> {
-    CGFloat screenHeight;
-    CGFloat screenWidth;
-    double currentMaxAccelX;
-    double currentMaxAccelY;
-}
+static const uint8_t bulletCategory = 1;
+static const uint8_t enemyCategory = 2;
+
+@interface MyScene : SKScene <UIAccelerometerDelegate,
+                              SKPhysicsContactDelegate>
 
 @property SKSpriteNode * plane;
 @property SKSpriteNode * background;
 @property SKSpriteNode * planeShadow;
 @property SKSpriteNode * propeller;
 @property SKSpriteNode * enemy;
+@property SKSpriteNode * enemyPropeller;
 @property SKSpriteNode * bullet;
 @property SKEmitterNode * smokeTrail;
 @property SKEmitterNode * enemySmokeTrail;
 @property (strong, nonatomic) CMMotionManager * motionManager;
-
+@property double currentMaxAccelX;
+@property double currentMaxAccelY;
 
 @end

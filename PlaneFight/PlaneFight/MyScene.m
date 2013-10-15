@@ -13,16 +13,13 @@
 -(id)initWithSize:(CGSize)size {
     if (self = [super initWithSize:size]) {
         
-        //init several sizes used in all scene
-        screenHeight = self.frame.size.height;
-        screenWidth = self.frame.size.width;
         self.backgroundColor = [SKColor blackColor];
         
         //adding the airplane
         _plane = [SKSpriteNode spriteNodeWithImageNamed:@"PLANE 8 N"];
         _plane.scale = 0.6;
         _plane.zPosition = 2;
-        _plane.position = CGPointMake(screenWidth / 2,
+        _plane.position = CGPointMake(self.frame.size.width / 2,
                                       15 + _plane.size.height / 2);
         [self addChild:_plane];
         
@@ -30,7 +27,7 @@
         _planeShadow = [SKSpriteNode spriteNodeWithImageNamed:@"PLANE 8 SHADOW"];
         _planeShadow.scale = 0.6;
         _planeShadow.zPosition = 1;
-        _planeShadow.position = CGPointMake(screenWidth / 2 + 10,
+        _planeShadow.position = CGPointMake(self.frame.size.width / 2 + 10,
                                             5 + _planeShadow.size.height / 2);
         [self addChild:_planeShadow];
         
@@ -38,7 +35,7 @@
         _propeller = [SKSpriteNode spriteNodeWithImageNamed:@"PLANE PROPELLER 1"];
         _propeller.scale = 0.2;
         _propeller.zPosition = 2;
-        _propeller.position = CGPointMake(screenWidth / 2,
+        _propeller.position = CGPointMake(self.frame.size.width / 2,
                                           _plane.size.height + 10);
         SKTexture * propeller1 = [SKTexture textureWithImageNamed:@"PLANE PROPELLER 1"];
         SKTexture * propeller2 = [SKTexture textureWithImageNamed:@"PLANE PROPELLER 2"];
@@ -72,7 +69,7 @@
         NSString * smokePath = [[NSBundle mainBundle] pathForResource:@"trail"
                                                                ofType:@"sks"];
         _smokeTrail = [NSKeyedUnarchiver unarchiveObjectWithFile:smokePath];
-        _smokeTrail.position = CGPointMake(screenWidth/2,
+        _smokeTrail.position = CGPointMake(self.frame.size.width / 2,
                                            15);
         [self addChild:_smokeTrail];
         
@@ -90,13 +87,13 @@
 }
 
 -(void)outputAccelertionData:(CMAcceleration)acceleration {
-    currentMaxAccelX = 0;
-    currentMaxAccelY = 0;
-    if (fabs(acceleration.x) > fabs(currentMaxAccelX)) {
-        currentMaxAccelX = acceleration.x;
+    _currentMaxAccelX = 0;
+    _currentMaxAccelY = 0;
+    if (fabs(acceleration.x) > fabs(_currentMaxAccelX)) {
+        _currentMaxAccelX = acceleration.x;
     }
-    if (fabs(acceleration.y) > fabs(currentMaxAccelY)) {
-        currentMaxAccelY = acceleration.y;
+    if (fabs(acceleration.y) > fabs(_currentMaxAccelY)) {
+        _currentMaxAccelY = acceleration.y;
     }
 }
 
@@ -134,7 +131,7 @@
         float yOfControlPoint2 = [self getRandomNumberBetween:0
                                                          to:yOfControlPoint1];
         CGPoint startPoint = CGPointMake(xOfStartPoint,
-                                         self.frame.size.height);
+                                         self.frame.size.height + 100);
         CGPoint endPoint = CGPointMake(xOfEndPoint,
                                        -100);
         CGPoint controlPoint1 = CGPointMake(xOfControlPoint1,
@@ -159,16 +156,34 @@
                                               duration:5];
         [self addChild:_enemy];
         SKAction * remove = [SKAction removeFromParent];
-        [_enemy runAction:[SKAction sequence:@[planeDestroy,
+        _enemy.position = CGPointMake(-100, -100);
+        [_enemy runAction:[SKAction sequence:@[[SKAction waitForDuration:0.25],
+                                               planeDestroy,
                                                remove]]];
+        
         //adding the enemySmokeTrail
         NSString * smokePath = [[NSBundle mainBundle] pathForResource:@"enemyTrail"
                                                                ofType:@"sks"];
         _enemySmokeTrail = [NSKeyedUnarchiver unarchiveObjectWithFile:smokePath];
         [self addChild:_enemySmokeTrail];
-        [_enemySmokeTrail runAction:[SKAction sequence:@[[SKAction waitForDuration:0.30],
+        [_enemySmokeTrail runAction:[SKAction sequence:@[[SKAction waitForDuration:0.5],
                                                          planeDestroy,
                                                          remove]]];
+        
+        //adding the propeller animation
+        _enemyPropeller = [SKSpriteNode spriteNodeWithImageNamed:@"PLANE PROPELLER 1"];
+        _enemyPropeller.scale = 0.2;
+        _enemyPropeller.zPosition = 2;
+        SKTexture * enemyPropeller1 = [SKTexture textureWithImageNamed:@"PLANE PROPELLER 1"];
+        SKTexture * enemyPropeller2 = [SKTexture textureWithImageNamed:@"PLANE PROPELLER 2"];
+        SKAction * spin = [SKAction animateWithTextures:@[enemyPropeller1,
+                                                          enemyPropeller2]
+                                           timePerFrame:0.1];
+        SKAction * spinForever = [SKAction repeatActionForever:spin];
+        [_enemyPropeller runAction:spinForever];
+        [self addChild:_enemyPropeller];
+        [_enemyPropeller runAction:[SKAction sequence:@[planeDestroy,remove]]];
+        
         CGPathRelease(cgPath);
         
     }
@@ -191,7 +206,7 @@
     _bullet.zPosition = 1;
     _bullet.scale = 0.8;
     SKAction * action = [SKAction moveToY:self.frame.size.height + _bullet.size.height
-                                duration:1];
+                                duration:1.5];
     SKAction * remove = [SKAction removeFromParent];
     [_bullet runAction:[SKAction sequence:@[action,
                                             remove]]];
@@ -200,23 +215,23 @@
 }
 
 -(void)update:(CFTimeInterval)currentTime {
-    float maxX = screenWidth - _plane.size.width / 2;
+    float maxX = self.frame.size.width - _plane.size.width / 2;
     float minX = _plane.size.width / 2;
-    float maxY = screenHeight - _plane.size.height / 2;
+    float maxY = self.frame.size.height - _plane.size.height / 2;
     float minY = _plane.size.height / 2;
     float newX = 0;
     float newY = 0;
-    if (currentMaxAccelX > 0.05) {
-        newX = currentMaxAccelX * 10;
+    if (_currentMaxAccelX > 0.05) {
+        newX = _currentMaxAccelX * 10;
         _plane.texture = [SKTexture textureWithImageNamed:@"PLANE 8 R"];
-    } else if (currentMaxAccelX < -0.05) {
-        newX = currentMaxAccelX * 10;
+    } else if (_currentMaxAccelX < -0.05) {
+        newX = _currentMaxAccelX * 10;
         _plane.texture = [SKTexture textureWithImageNamed:@"PLANE 8 L"];
     } else {
-        newX = currentMaxAccelX * 10;
+        newX = _currentMaxAccelX * 10;
         _plane.texture = [SKTexture textureWithImageNamed:@"PLANE 8 N"];
     }
-    newY = 8 + currentMaxAccelY * 10;
+    newY = 8 + _currentMaxAccelY * 10;
     float newXshadow = newX + _planeShadow.position.x;
     float newYshadow = newY + _planeShadow.position.y;
     newXshadow = MIN(MAX(newXshadow,
